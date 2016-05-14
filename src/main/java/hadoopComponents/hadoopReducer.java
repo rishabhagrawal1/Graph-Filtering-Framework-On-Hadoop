@@ -15,7 +15,12 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Reducer.Context;
 
 public abstract class hadoopReducer extends Reducer<Object, Object, Object, Object> {
-
+	public void reduce(Object key, Iterable<Object> values,
+            Context context
+            ) throws IOException, InterruptedException {
+		
+	}
 }
