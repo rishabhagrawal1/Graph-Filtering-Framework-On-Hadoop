@@ -33,19 +33,21 @@ public class FrameworkMain extends Configured implements Tool{
 	HadoopJob hJob;
 	
 	public int run(String[] args) throws Exception {
-		String jobname = args[0];
-		String input_path = args[1];
-		String output_path = args[2];
-		String final_output_path;
-
+		String keepGoing = "keepGoing";
+		String updateParams = "updateParams";
+		String inputPath = "getInputPath";
+		String outputPath = "getOutputtPath";
+		Object termination;
+		Boolean isTerminate;
+		Method getNameMethod;
 		int iterationCount = 0;
 		int numMappers = 1;
 		int numReducers = 1;
-
+		
 		Job job;
 		FileSystem fs = FileSystem.get(new Configuration());
 		Configuration conf = new Configuration();
-		String path="logs/"+hJob.getJobName()+ "-" +hJob.getJobName();
+		String path="logs/"+hJob.getJobName();
 		FileSystem fs1 = FileSystem.get(URI.create(path),conf);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fs1.create(new Path(path),true)));
 		Calendar startTime = Calendar.getInstance();
@@ -53,26 +55,29 @@ public class FrameworkMain extends Configured implements Tool{
 			/*
 			 * Reflection to get if termination condition met 
 			 */
-			Object termination = hJob.getTerminatorValueClass().newInstance(); // invoke empty constructor
-			String methodName = "keepGoing";
-			Method getNameMethod = termination.getClass().getMethod(methodName);
-			Boolean b = (Boolean)getNameMethod.invoke(termination);
-			while (b.booleanValue()) {
-				//DeleteAllFiles.deleteFile(user,"tmp", jobname + "-" + iterationCount);	
-				output_path = "/tmp/" + jobname + "-" + (iterationCount + 1);
+			termination = hJob.getTerminatorClass().newInstance(); // invoke empty constructor
+			getNameMethod = termination.getClass().getMethod(keepGoing);
+			isTerminate = (Boolean)getNameMethod.invoke(termination);
+			while (isTerminate.booleanValue()) {
 				//If need to set mappers and reducers here
-				hJob.setNumReducers(numReducers);
-				hJob.setNumMappers(numMappers);
-				//get Job
-				job = hJob.getJob(jobname);
-				//set input and output path
-				FileInputFormat.addInputPath(job, new Path(input_path));
-				FileOutputFormat.setOutputPath(job, new Path(output_path));
+				//hJob.setNumReducers(numReducers);
+				//hJob.setNumMappers(numMappers);
 				
+				//get Job
+				job = hJob.createJob(hJob.getJobName());
+				
+				//Set Input and Output paths
+				getNameMethod = termination.getClass().getMethod(inputPath, HadoopJob.class);
+				FileInputFormat.addInputPath(job, new Path((String)getNameMethod.invoke(termination, hJob)));
+				getNameMethod = termination.getClass().getMethod(outputPath, HadoopJob.class);
+				FileOutputFormat.setOutputPath(job, new Path((String)getNameMethod.invoke(termination, hJob)));
+				
+				//Wait for job completion
 				job.waitForCompletion(true);
-	
-				input_path = output_path;
-				iterationCount++;
+				
+				//Call for update params
+				getNameMethod = termination.getClass().getMethod(keepGoing);
+				isTerminate = (Boolean)getNameMethod.invoke(termination);
 			}
 		}catch(Exception e){
 			e.printStackTrace();

@@ -63,14 +63,14 @@ public class HadoopJob {
 		this.clsOutputValue = clsOutputValue;
 	}
 	public Class <?> getoOtputValueClass(){
-		return clsOutputKey;
+		return clsOutputValue;
 	}
 
-	public void setTerminatorClass(Class <?> clsOutputKey){
-		this.clsReducer = clsReducer;
+	public void setTerminatorClass(Class <?> clsTermination){
+		this.clsTermination = clsTermination;
 	}
-	public Class <?> getTerminatorValueClass(){
-		return clsOutputKey;
+	public Class <?> getTerminatorClass(){
+		return clsTermination;
 	}
 	
 	public String getJobName(){
@@ -82,7 +82,11 @@ public class HadoopJob {
 		this.jobName = jobName;
 	}
 	
-	public Job getJob(String jobName) throws IOException {
+	public Job getJob(){
+		return job;
+	}
+		
+	public Job createJob(String jobName) throws IOException {
 		Configuration conf = new Configuration();
 		this.jobName = jobName;
 		job = Job.getInstance(conf, jobName); // jobname

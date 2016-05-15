@@ -1,32 +1,55 @@
 package hadoopComponents;
 
+import org.apache.hadoop.mapreduce.Counters;
+
+
 public class HadoopTerminator {
-	Integer maxIteration = 1;
-	Integer iteration = 0; 
+	Integer maxIteration = Integer.MAX_VALUE;
+	protected Integer iterationCount = 0; 
 	void setMaxIteration(Integer maxIteration)
 	{
 		this.maxIteration = maxIteration;
 	}
-	void iterationInc()
+	
+	public void increaseCounter()
 	{
-		if(iteration < maxIteration)
-			iteration++;
-	}
-	void iterationDec()
-	{
-		if(iteration > 0)
-			iteration--;
+		if(iterationCount < maxIteration)
+			iterationCount++;
 	}
 	
+	public void resetCounter()
+	{
+		iterationCount = 0;
+	}
 	/*
 	 * Override this function for different defination of termination condition
 	 */
 	protected boolean keepGoing()
 	{
-		if(iteration < maxIteration)
+		if(iterationCount < maxIteration)
 		{
 			return true;
 		}
 		return false;
 	}
+	
+	public void updateParams(HadoopJob hJob) throws Exception
+	{
+	
+	}
+	
+	public String getInputPath(HadoopJob hJob)
+	{
+		String inputPath = "";
+		inputPath = "input/"+hJob.getJobName();
+		return inputPath;
+	}
+	
+	public String getOutputtPath(HadoopJob hJob)
+	{
+		String outputPath = "";
+		outputPath = "output/"+hJob.getJobName();
+		return outputPath;
+	}
+
 }

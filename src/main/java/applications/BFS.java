@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -15,11 +16,12 @@ import hadoopComponents.hadoopReducer;
 import hadoopComponents.HadoopTerminator;
 import hadoopComponents.HadoopJob;
 
+enum count {
+	PROCESSED_GRAY,			
+	UNPROCESSED_GRAY		
+}
+
 class MapClass extends Mapper<LongWritable, Text, IntWritable, Text> {
-	public enum count {
-		PROCESSED_GRAY,			// Number of gray nodes processed 
-		UNPROCESSED_GRAY		// Number of gray nodes to be processed
-	};
 	
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
@@ -37,18 +39,11 @@ class MapClass extends Mapper<LongWritable, Text, IntWritable, Text> {
 			context.getCounter(count.PROCESSED_GRAY).increment(1L);
 		}
 
-		// No matter what, we emit the input node
-		// If the node came into this method GRAY, it will be output as
-		// BLACK
 		context.write(new IntWritable(node.getId()), new Text(node.toString()));
 	}
 }
 
 class ReduceClass extends Reducer<IntWritable, Text, IntWritable, Text> {
-	public enum count {
-		PROCESSED_GRAY,			// Number of gray nodes processed 
-		UNPROCESSED_GRAY		// Number of gray nodes to be processed
-	};
 	
 	public void reduce(IntWritable key, Iterable<Text> values,
 		Context context) throws IOException, InterruptedException {
@@ -87,9 +82,9 @@ class ReduceClass extends Reducer<IntWritable, Text, IntWritable, Text> {
 	}
 }
 
-
 class TerminatorClass extends HadoopTerminator{
-	long numGrayUnProcessed = 1, numGrayProcessed = 0;
+	long numGrayUnProcessed = 1;
+	long numGrayProcessed = 0;
 	public boolean keepGoing()
 	{
 		while (numGrayUnProcessed > 0) {
@@ -97,21 +92,34 @@ class TerminatorClass extends HadoopTerminator{
 		}
 		return false;
 	}
-	public void updateParams()
+	public void updateParams(HadoopJob hJob) throws Exception
 	{
-		
+		increaseCounter();
+		Counters counters = hJob.getJob().getCounters();
+		numGrayProcessed = (long) (counters.findCounter(count.PROCESSED_GRAY)).getValue();
+		numGrayUnProcessed = (long) (counters.findCounter(count.UNPROCESSED_GRAY)).getValue();
+	
+	}
+	public String getInputPath(HadoopJob hJob)
+	{
+		String inputPath = "";
+		if (iterationCount == 0)
+			inputPath = "input/"+hJob.getJobName();
+		else
+			inputPath = "output/"+hJob.getJobName()+"-" + iterationCount;
+		return inputPath;
+	}
+	public String getOutputtPath(HadoopJob hJob)
+	{
+		String outputPath = "";
+		outputPath = "output/"+hJob.getJobName()+"-" + (iterationCount + 1);
+		return outputPath;
 	}
 }
-
 
 public class BFS {
 	static FrameworkMain fwMain;
 	static HadoopJob hJob;
-
-	public static enum count {
-		PROCESSED_GRAY,			// Number of gray nodes processed 
-		UNPROCESSED_GRAY		// Number of gray nodes to be processed
-	};
 	
 	static HadoopJob CreateHadoopJob(String name){
 		hJob = new HadoopJob();
@@ -120,6 +128,7 @@ public class BFS {
 		hJob.setOtputKeyClass(IntWritable.class);
 		hJob.setOutputValueClass(Text.class);
 		hJob.setTerminatorClass(TerminatorClass.class);
+		hJob.setJobName(name);
 		return hJob;
 	}
 	
