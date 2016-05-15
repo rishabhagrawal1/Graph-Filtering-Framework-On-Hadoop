@@ -40,7 +40,8 @@ public class NodeExtendedBFS extends Node{
 				edgeList.add(Integer.parseInt(node));
 			}
 			setEdgeList(edgeList);
-			if(distance.equals("Integer.MAX_VALUE"))
+			//if(distance.equals("Integer.MAX_VALUE"))
+			if(distance.equals("Integer.MAX"))
 			{
 				setDistance(Integer.MAX_VALUE);	
 			}else{
