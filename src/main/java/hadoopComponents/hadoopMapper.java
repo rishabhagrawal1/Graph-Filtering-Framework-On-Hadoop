@@ -16,8 +16,8 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 
-public abstract class hadoopMapper extends Mapper<Object, Object, Object, Object> {
-	 public void map(Object key, Object input_value, Context context )
+public abstract class hadoopMapper extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
+	 public void map(K1 key, V1 input_value, Context context )
 				throws IOException, InterruptedException {
 	 }
 }
