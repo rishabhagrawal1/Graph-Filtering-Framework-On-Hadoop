@@ -53,7 +53,7 @@ public class HadoopJob {
 	}
 
 	public void setOtputKeyClass(Class <?> clsOutputKey){
-		this.clsReducer = clsReducer;
+		this.clsOutputKey = clsOutputKey;
 	}
 	public Class <?> getOtputKeyClass(){
 		return clsOutputKey;

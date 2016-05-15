@@ -82,41 +82,6 @@ class ReduceClass extends Reducer<IntWritable, Text, IntWritable, Text> {
 	}
 }
 
-class TerminatorClass extends HadoopTerminator{
-	long numGrayUnProcessed = 1;
-	long numGrayProcessed = 0;
-	public boolean keepGoing()
-	{
-		while (numGrayUnProcessed > 0) {
-			return true;
-		}
-		return false;
-	}
-	public void updateParams(HadoopJob hJob) throws Exception
-	{
-		increaseCounter();
-		Counters counters = hJob.getJob().getCounters();
-		numGrayProcessed = (long) (counters.findCounter(count.PROCESSED_GRAY)).getValue();
-		numGrayUnProcessed = (long) (counters.findCounter(count.UNPROCESSED_GRAY)).getValue();
-	
-	}
-	public String getInputPath(HadoopJob hJob)
-	{
-		String inputPath = "";
-		if (iterationCount == 0)
-			inputPath = "input/"+hJob.getJobName();
-		else
-			inputPath = "output/"+hJob.getJobName()+"-" + iterationCount;
-		return inputPath;
-	}
-	public String getOutputtPath(HadoopJob hJob)
-	{
-		String outputPath = "";
-		outputPath = "output/"+hJob.getJobName()+"-" + (iterationCount + 1);
-		return outputPath;
-	}
-}
-
 public class BFS {
 	static FrameworkMain fwMain;
 	static HadoopJob hJob;
@@ -127,7 +92,7 @@ public class BFS {
 		hJob.setReducerClass(ReduceClass.class);
 		hJob.setOtputKeyClass(IntWritable.class);
 		hJob.setOutputValueClass(Text.class);
-		hJob.setTerminatorClass(TerminatorClass.class);
+		hJob.setTerminatorClass(TerminatorClassBFS.class);
 		hJob.setJobName(name);
 		return hJob;
 	}

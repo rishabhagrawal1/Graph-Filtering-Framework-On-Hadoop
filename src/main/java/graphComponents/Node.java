@@ -14,8 +14,6 @@ public class Node {
 	}
 	public Node(String nodeStr)
 	{
-		edgeList = new ArrayList();
-		weightList = new ArrayList();
 		parseinputRow(nodeStr);
 	}
 
@@ -28,7 +26,7 @@ public class Node {
 		String[] tokens = nodeStr.split("\t");
 		try{
 			setId(Integer.parseInt(tokens[0]));
-			String[] intermediate = tokens[1].split("|");
+			String[] intermediate = tokens[1].split("\\||");
 			String[] dstNodes = intermediate[0].split(",");
 			String[] weights = intermediate[1].split(",");
 			for(String node : dstNodes)
@@ -49,20 +47,28 @@ public class Node {
 	public String toString()
 	{
 		String output = "";
-		Iterator<Integer> itrEdge =  edgeList.iterator();
-		while(itrEdge.hasNext())
-		{
-			output += Integer.toString(itrEdge.next());
-			if(itrEdge.hasNext())
-				output += ",";
+		if(edgeList != null){
+			Iterator<Integer> itrEdge =  edgeList.iterator();
+			while(itrEdge.hasNext())
+			{
+				output += Integer.toString(itrEdge.next());
+				if(itrEdge.hasNext())
+					output += ",";
+			}
+		}else{
+			output += "NULL";
 		}
 		output += "|";
-		Iterator<Float> itrWeight =  weightList.iterator();
-		while(itrWeight.hasNext())
-		{
-			output += Float.toString(itrWeight.next());
-			if(itrWeight.hasNext())
-				output += ",";
+		if(weightList != null)
+		{	
+			Iterator<Float> itrWeight =  weightList.iterator();
+			while(itrWeight.hasNext())
+			{
+				output += Float.toString(itrWeight.next());
+				if(itrWeight.hasNext())
+					output += ",";
+			}
+			output += "|";
 		}
 		return output;
 	}
@@ -70,20 +76,28 @@ public class Node {
 	public String createOutputRow(ArrayList<Integer> edgeList, ArrayList<Float> weightList)
 	{
 		String output = "";
-		Iterator<Integer> itrEdge =  edgeList.iterator();
-		while(itrEdge.hasNext())
-		{
-			output += Integer.toString(itrEdge.next());
-			if(itrEdge.hasNext())
-				output += ",";
+		if(edgeList != null){
+			Iterator<Integer> itrEdge =  edgeList.iterator();
+			while(itrEdge.hasNext())
+			{
+				output += Integer.toString(itrEdge.next());
+				if(itrEdge.hasNext())
+					output += ",";
+			}
+		}else{
+			output += "NULL";
 		}
 		output += "|";
-		Iterator<Float> itrWeight =  weightList.iterator();
-		while(itrWeight.hasNext())
-		{
-			output += Float.toString(itrWeight.next());
-			if(itrWeight.hasNext())
-				output += ",";
+		if(weightList != null)
+		{	
+			Iterator<Float> itrWeight =  weightList.iterator();
+			while(itrWeight.hasNext())
+			{
+				output += Float.toString(itrWeight.next());
+				if(itrWeight.hasNext())
+					output += ",";
+			}
+			output += "|";
 		}
 		return output;
 	}

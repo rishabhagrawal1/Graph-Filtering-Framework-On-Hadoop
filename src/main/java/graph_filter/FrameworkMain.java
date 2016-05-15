@@ -30,7 +30,7 @@ import hadoopComponents.hadoopReducer;
 import hadoopComponents.HadoopTerminator;
 
 public class FrameworkMain extends Configured implements Tool{
-	HadoopJob hJob;
+	public HadoopJob hJob;
 	
 	public int run(String[] args) throws Exception {
 		String keepGoing = "keepGoing";
@@ -43,10 +43,11 @@ public class FrameworkMain extends Configured implements Tool{
 		int iterationCount = 0;
 		int numMappers = 1;
 		int numReducers = 1;
+		Class cls;
 		
 		Job job;
 		FileSystem fs = FileSystem.get(new Configuration());
-		Configuration conf = new Configuration();
+		Configuration conf = getConf();
 		String path="logs/"+hJob.getJobName();
 		FileSystem fs1 = FileSystem.get(URI.create(path),conf);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fs1.create(new Path(path),true)));
@@ -55,8 +56,9 @@ public class FrameworkMain extends Configured implements Tool{
 			/*
 			 * Reflection to get if termination condition met 
 			 */
-			termination = hJob.getTerminatorClass().newInstance(); // invoke empty constructor
-			getNameMethod = termination.getClass().getMethod(keepGoing);
+			cls = hJob.getTerminatorClass();
+			termination = cls.newInstance(); // invoke empty constructor
+			getNameMethod = cls.getMethod(keepGoing);
 			isTerminate = (Boolean)getNameMethod.invoke(termination);
 			while (isTerminate.booleanValue()) {
 				//If need to set mappers and reducers here
@@ -76,7 +78,9 @@ public class FrameworkMain extends Configured implements Tool{
 				job.waitForCompletion(true);
 				
 				//Call for update params
-				getNameMethod = termination.getClass().getMethod(keepGoing);
+				getNameMethod = termination.getClass().getMethod(updateParams, HadoopJob.class);
+				isTerminate = (Boolean)getNameMethod.invoke(termination, hJob);
+				getNameMethod = cls.getMethod(keepGoing);
 				isTerminate = (Boolean)getNameMethod.invoke(termination);
 			}
 		}catch(Exception e){
@@ -94,13 +98,11 @@ public class FrameworkMain extends Configured implements Tool{
 		int res = 0;
 		this.hJob = hJob;
 		try {
-			res = ToolRunner.run(new Configuration(), new FrameworkMain(), args);
+			res = ToolRunner.run(new Configuration(), this, args);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.exit(res);
 	}
-
-
 }

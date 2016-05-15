@@ -17,7 +17,7 @@ public class NodeExtendedBFS extends Node{
 	private int distance;
 	
 	public NodeExtendedBFS(String nodeStr) {
-		
+		super();
 		parseinputRow(nodeStr);
 	}
 	
@@ -30,16 +30,21 @@ public class NodeExtendedBFS extends Node{
 		String[] tokens = nodeStr.split("\t");
 		try{
 			setId(Integer.parseInt(tokens[0]));
-			String[] intermediate = tokens[1].split("|");
+			String[] intermediate = tokens[1].split("\\|");
 			String[] dstNodes = intermediate[0].split(",");
-			String[] weights = intermediate[1].split(",");
+			String distance = intermediate[1];
+			ArrayList<Integer> edgeList = new ArrayList();
 			for(String node : dstNodes)
 			{
-				getEdgeList().add(Integer.parseInt(node));
+				if(!node.equals("NULL"))
+				edgeList.add(Integer.parseInt(node));
 			}
-			for(String weight : weights)
+			setEdgeList(edgeList);
+			if(distance.equals("Integer.MAX_VALUE"))
 			{
-				getWeightList().add(Float.parseFloat(weight));
+				setDistance(Integer.MAX_VALUE);	
+			}else{
+				setDistance(Integer.parseInt(distance));
 			}
 			setColor(Color.valueOf(intermediate[2]));
 		}
@@ -53,14 +58,14 @@ public class NodeExtendedBFS extends Node{
 	{
 		String output = "";
 		output = super.toString();
-		return (output += "|" + color);
+		return (output += Integer.toString(distance)+ "|" + color);
 	}
 	
 	public String createOutputRow(ArrayList<Integer> edgeList, ArrayList<Float> weightList, String color)
 	{
 		String output = "";
 		output = super.createOutputRow(edgeList, weightList);
-		return (output += "|" + color);
+		return (output += Integer.toString(distance)+ "|" + color);
 	}
 	
 	public void setColor(Color color)
